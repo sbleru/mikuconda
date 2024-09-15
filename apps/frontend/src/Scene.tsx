@@ -1,18 +1,22 @@
 import { Canvas, useLoader, useThree } from "@react-three/fiber";
 import { OrbitControls, PerspectiveCamera } from "@react-three/drei";
 import { TextureLoader } from "three";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { GLTF, GLTFLoader } from "three/examples/jsm/Addons.js";
 import { clone } from "three/examples/jsm/utils/SkeletonUtils.js";
 
+/**
+ * 背景画像は、sceneの背景として設定する
+ */
 const Background = () => {
+  const { scene, gl } = useThree();
   const texture = useLoader(TextureLoader, "/golconda_4.png");
-  return (
-    <mesh position={[0, 0, -10]}>
-      <planeGeometry args={[20, 20]} />
-      <meshBasicMaterial map={texture} />
-    </mesh>
-  );
+  useEffect(() => {
+    // テクスチャの色がおかしくなるので、レンダラーのカラースペースと一致させる
+    texture.colorSpace = gl.outputColorSpace;
+    scene.background = texture; // 背景をシーンのバックグラウンドに設定
+  }, [scene, texture]);
+  return null;
 };
 
 const Person = ({
