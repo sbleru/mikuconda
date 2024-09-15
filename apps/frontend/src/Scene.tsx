@@ -1,8 +1,9 @@
 import { Canvas, useLoader, useThree } from "@react-three/fiber";
 import { OrbitControls, PerspectiveCamera } from "@react-three/drei";
-import { GLTFLoader } from "three/examples/jsm/Addons.js";
 import { TextureLoader } from "three";
 import { useMemo } from "react";
+import { GLTF, GLTFLoader } from "three/examples/jsm/Addons.js";
+import { clone } from "three/examples/jsm/utils/SkeletonUtils.js";
 
 const Background = () => {
   const texture = useLoader(TextureLoader, "/golconda_4.png");
@@ -19,12 +20,12 @@ const Person = ({
   gltf,
 }: {
   position: [number, number, number];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  gltf: any;
+  gltf: GLTF;
 }) => {
   return (
     <primitive
-      object={gltf.scene.clone()} // sceneをクローンして使用
+      // NOTE: gltf.scene.clone() では、スキンメッシュやアニメーションを含むモデルをcloneできない
+      object={clone(gltf.scene)}
       position={position}
       scale={[1, 1, 1]}
     />
@@ -38,6 +39,8 @@ const Scene = () => {
   const gltf = useLoader(GLTFLoader, "/hatsune_miku__escenario_colorido.glb");
   const memoizedGltf = useMemo(() => gltf, [gltf]);
 
+  const range = [-2, 0, 2]; // x, y, z それぞれの座標値
+
   return (
     <>
       <PerspectiveCamera makeDefault fov={75} position={[0, 0, 5]} />
@@ -45,9 +48,17 @@ const Scene = () => {
       <pointLight position={[10, 10, 10]} />
       <directionalLight position={[0, 0, 5]} color="#39c5bb" />
       <Background />
-      <Person position={[0, -1, 0]} gltf={memoizedGltf} />
-      <Person position={[0, 0, 0]} gltf={memoizedGltf} />
-      <Person position={[0, 1, 0]} gltf={memoizedGltf} />
+      {range.map((x) =>
+        range.map((y) =>
+          range.map((z) => (
+            <Person
+              key={`${x}-${y}-${z}`}
+              position={[x, y, z]}
+              gltf={memoizedGltf}
+            />
+          )),
+        ),
+      )}
       <OrbitControls />
     </>
   );
