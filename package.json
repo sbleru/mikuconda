@@ -4,13 +4,25 @@
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "turbo lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "prepare": "husky"
   },
   "devDependencies": {
     "eslint": "^8.57.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.4.3",
     "prettier": "^3.2.5",
     "turbo": "^2.0.14"
   },
   "packageManager": "pnpm@8.15.6",
-  "name": "with-vite"
+  "name": "with-vite",
+  "lint-staged": {
+    "*.ts?(x)": [
+      "prettier --write",
+      "eslint --fix --cache"
+    ],
+    "*.{html,css,md,json}": [
+      "prettier --write"
+    ]
+  }
 }
