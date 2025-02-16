@@ -11,3 +11,4 @@ server/dist
 public/dist
 tmp/
 .eslintcache
+plans/private/
