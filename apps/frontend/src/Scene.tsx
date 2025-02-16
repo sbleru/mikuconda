@@ -116,7 +116,8 @@ const PersonPlane = ({
 const Scene = () => {
   const { camera } = useThree();
   camera.position.z = 5;
-  const gltf = useLoader(GLTFLoader, "/hatsune_miku__escenario_colorido.glb");
+  // const gltf = useLoader(GLTFLoader, "/hatsune_miku__escenario_colorido.glb");
+  const gltf = useLoader(GLTFLoader, "/hatsune_miku__escenario_colorido/hatsune_miku__escenario_colorido.gltf");
   const memoizedGltf = useMemo(() => gltf, [gltf]);
 
   return (
