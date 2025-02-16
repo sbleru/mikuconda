@@ -1,9 +1,10 @@
-import { Canvas, useLoader, useThree } from "@react-three/fiber";
+import { Canvas, useLoader, useThree, useFrame } from "@react-three/fiber";
 import { OrbitControls, PerspectiveCamera } from "@react-three/drei";
 import { TextureLoader } from "three";
-import { useEffect, useMemo, Suspense } from "react";
+import { useEffect, useMemo, Suspense, useRef, useState } from "react";
 import { GLTF, GLTFLoader } from "three/examples/jsm/Addons.js";
 import { clone } from "three/examples/jsm/utils/SkeletonUtils.js";
+import * as THREE from "three";
 
 /**
  * 背景画像は、sceneの背景として設定する
@@ -28,14 +29,37 @@ const Person = ({
   scale: [number, number, number];
   gltf: GLTF;
 }) => {
+  const ref = useRef<THREE.Group>(null);
+  usePersonAnimation(ref);
+
   return (
     <primitive
+      ref={ref}
       // NOTE: gltf.scene.clone() では、スキンメッシュやアニメーションを含むモデルをcloneできない
       object={clone(gltf.scene)}
       position={position}
       scale={scale}
     />
   );
+};
+
+const usePersonAnimation = (ref: React.RefObject<THREE.Group>) => {
+  const [rotationDirection, setRotationDirection] = useState(1);
+  const [startDelay, setStartDelay] = useState(0);
+
+  useEffect(() => {
+    setRotationDirection(Math.random() < 0.5 ? -1 : 1);
+    setStartDelay(Math.random() * 5); // 0から5秒のランダムな遅延
+  }, []);
+
+  useFrame((state, delta) => {
+    if (ref.current) {
+      if (state.clock.elapsedTime > startDelay) {
+        ref.current.rotation.y +=
+          ((rotationDirection * (Math.PI * 2)) / 5) * delta;
+      }
+    }
+  });
 };
 
 const PersonLane = ({
@@ -117,7 +141,10 @@ const Scene = () => {
   const { camera } = useThree();
   camera.position.z = 5;
   // const gltf = useLoader(GLTFLoader, "/hatsune_miku__escenario_colorido.glb");
-  const gltf = useLoader(GLTFLoader, "/hatsune_miku__escenario_colorido/hatsune_miku__escenario_colorido.gltf");
+  const gltf = useLoader(
+    GLTFLoader,
+    "/hatsune_miku__escenario_colorido/hatsune_miku__escenario_colorido.gltf",
+  );
   const memoizedGltf = useMemo(() => gltf, [gltf]);
 
   return (
